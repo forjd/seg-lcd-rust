@@ -244,62 +244,89 @@ pub fn parse_cells(text: &str) -> Vec<Cell> {
 
 pub fn render_text(text: &str, style: TerminalStyle) -> String {
     let cells = parse_cells(text);
+    let row_capacity = cells.len().saturating_mul(7);
     let mut rows = [
-        String::new(),
-        String::new(),
-        String::new(),
-        String::new(),
-        String::new(),
+        String::with_capacity(row_capacity),
+        String::with_capacity(row_capacity),
+        String::with_capacity(row_capacity),
+        String::with_capacity(row_capacity),
+        String::with_capacity(row_capacity),
     ];
 
     for cell in cells {
-        let rendered = render_cell(cell, style);
-        for (row, rendered_row) in rows.iter_mut().zip(rendered) {
-            if !row.is_empty() {
-                row.push(' ');
-            }
-            row.push_str(&rendered_row);
+        push_text_cell(&mut rows, cell, style);
+    }
+
+    let mut output = String::with_capacity(rows.iter().map(String::len).sum::<usize>() + 4);
+    for (index, row) in rows.iter().enumerate() {
+        if index > 0 {
+            output.push('\n');
+        }
+        output.push_str(row);
+    }
+    output
+}
+
+fn push_text_cell(rows: &mut [String; 5], cell: Cell, style: TerminalStyle) {
+    if !rows[0].is_empty() {
+        for row in rows.iter_mut() {
+            row.push(' ');
         }
     }
 
-    rows.join("\n")
-}
-
-fn render_cell(cell: Cell, style: TerminalStyle) -> [String; 5] {
     match cell.kind {
-        CellKind::Segments(mask) => render_segments(mask, cell.decimal, style),
-        CellKind::Colon => [
-            "  ".to_string(),
-            format!("{} ", style.on),
-            "  ".to_string(),
-            format!("{} ", style.on),
-            "  ".to_string(),
-        ],
-        CellKind::Blank => render_segments(0, cell.decimal, style),
+        CellKind::Segments(mask) => push_text_segments(rows, mask, cell.decimal, style),
+        CellKind::Colon => {
+            rows[0].push_str("  ");
+            rows[1].push(style.on);
+            rows[1].push(' ');
+            rows[2].push_str("  ");
+            rows[3].push(style.on);
+            rows[3].push(' ');
+            rows[4].push_str("  ");
+        }
+        CellKind::Blank => push_text_segments(rows, 0, cell.decimal, style),
     }
 }
 
-fn render_segments(mask: u8, decimal: bool, style: TerminalStyle) -> [String; 5] {
-    let h = |segment, label| segment_run(mask, segment, label, style);
-    let v = |left, right, left_label, right_label| {
-        format!(
-            "{}   {} ",
-            segment_char(mask, left, left_label, style),
-            segment_char(mask, right, right_label, style)
-        )
-    };
-
-    [
-        format!(" {}  ", h(A, 'A')),
-        v(F, B, 'F', 'B'),
-        format!(" {}  ", h(G, 'G')),
-        v(E, C, 'E', 'C'),
-        format!(" {}{} ", h(D, 'D'), if decimal { style.on } else { ' ' }),
-    ]
+fn push_text_segments(rows: &mut [String; 5], mask: u8, decimal: bool, style: TerminalStyle) {
+    push_horizontal_segment(&mut rows[0], mask, A, 'A', style);
+    push_vertical_segments(&mut rows[1], mask, F, B, 'F', 'B', style);
+    push_horizontal_segment(&mut rows[2], mask, G, 'G', style);
+    push_vertical_segments(&mut rows[3], mask, E, C, 'E', 'C', style);
+    push_horizontal_segment(&mut rows[4], mask, D, 'D', style);
+    rows[4].push(if decimal { style.on } else { ' ' });
+    rows[4].push(' ');
 }
 
-fn segment_run(mask: u8, segment: u8, label: char, style: TerminalStyle) -> String {
-    std::iter::repeat_n(segment_char(mask, segment, label, style), 3).collect()
+fn push_horizontal_segment(
+    row: &mut String,
+    mask: u8,
+    segment: u8,
+    label: char,
+    style: TerminalStyle,
+) {
+    row.push(' ');
+    row.extend(std::iter::repeat_n(
+        segment_char(mask, segment, label, style),
+        3,
+    ));
+    row.push_str("  ");
+}
+
+fn push_vertical_segments(
+    row: &mut String,
+    mask: u8,
+    left: u8,
+    right: u8,
+    left_label: char,
+    right_label: char,
+    style: TerminalStyle,
+) {
+    row.push(segment_char(mask, left, left_label, style));
+    row.push_str("   ");
+    row.push(segment_char(mask, right, right_label, style));
+    row.push(' ');
 }
 
 fn segment_char(mask: u8, segment: u8, label: char, style: TerminalStyle) -> char {

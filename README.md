@@ -128,6 +128,22 @@ cargo build --release --bins
 The CLI binary is `target/release/seg-lcd-rust`. The GUI binary is
 `target/release/seg-lcd-rust-gui`.
 
+## Performance
+
+On an Apple M4 Pro Mac running Rust 1.94.0, the release CLI completes typical
+single-render invocations in about 1.3-1.5 ms when benchmarked without shell
+startup overhead:
+
+```bash
+hyperfine --shell=none --warmup 50 --runs 200 \
+  './target/release/seg-lcd-rust 0123456789' \
+  './target/release/seg-lcd-rust 0123456789:0123456789.0123456789' \
+  './target/release/seg-lcd-rust --svg /tmp/seg-lcd-rust-bench.svg --theme amber 10:58.42'
+```
+
+These short runs are mostly process-startup-bound; rendering longer display text
+adds little overhead.
+
 ## Releases
 
 Releases are automated with Release Please from Conventional Commits. Changes
