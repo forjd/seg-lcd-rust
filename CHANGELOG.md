@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0](https://github.com/forjd/seg-lcd-rust/compare/v0.3.0...v0.4.0) (2026-05-03)
+
+
+### Features
+
+* add custom segment masks ([b3af504](https://github.com/forjd/seg-lcd-rust/commit/b3af50401e8833ba802d48f9c25a9a5e12f46cd3))
+* add webassembly demo ([d6217af](https://github.com/forjd/seg-lcd-rust/commit/d6217af096bef90d9e949a788ef3d9b93a42cfb4))
+
+
+### Performance Improvements
+
+* reduce terminal rendering allocations ([f5bc686](https://github.com/forjd/seg-lcd-rust/commit/f5bc686b5992baa85d3065e5ab3616fea8b494af))
+
 ## [0.3.0](https://github.com/forjd/seg-lcd-rust/compare/v0.2.0...v0.3.0) (2026-05-03)
 
 
