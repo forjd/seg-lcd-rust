@@ -58,7 +58,12 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Build
-        run: cargo build --release --locked --target ${{ matrix.target }} --bin seg-lcd-rust --bin seg-lcd-rust-gui
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --target "${{ matrix.target }}" --bin seg-lcd-rust
+          cargo build --release --locked --target "${{ matrix.target }}" --bin seg-lcd-rust-gui \
+            || cargo build --release --locked --target "${{ matrix.target }}" --bin gui
 
       - name: Package
         shell: bash
@@ -69,7 +74,11 @@ jobs:
           package="seg-lcd-rust-${RELEASE_TAG}-${{ matrix.name }}"
           mkdir -p "dist/$package"
           cp "target/${{ matrix.target }}/release/seg-lcd-rust${{ matrix.ext }}" "dist/$package/"
-          cp "target/${{ matrix.target }}/release/seg-lcd-rust-gui${{ matrix.ext }}" "dist/$package/"
+          if [ -f "target/${{ matrix.target }}/release/seg-lcd-rust-gui${{ matrix.ext }}" ]; then
+            cp "target/${{ matrix.target }}/release/seg-lcd-rust-gui${{ matrix.ext }}" "dist/$package/"
+          else
+            cp "target/${{ matrix.target }}/release/gui${{ matrix.ext }}" "dist/$package/seg-lcd-rust-gui${{ matrix.ext }}"
+          fi
           cp README.md LICENSE "dist/$package/"
 
           if [ "${{ matrix.archive }}" = "zip" ]; then
