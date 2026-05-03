@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 498 164" role="img">
+  <title>Seven-segment LCD display</title>
+  <defs>
+    <linearGradient id="lcd-panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#c8d4bf" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#dfe8d6" stop-opacity="0.78"/>
+    </linearGradient>
+    <filter id="segment-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" rx="14" fill="#dfe8d6"/>
+  <rect x="8" y="8" width="482" height="148" rx="10" fill="url(#lcd-panel)"/>
+  <polygon points="40.0,22.0 80.0,22.0 90.0,30.0 80.0,38.0 40.0,38.0 30.0,30.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="88.0,32.0 96.0,40.0 96.0,74.0 88.0,82.0 80.0,74.0 80.0,40.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="88.0,88.0 96.0,96.0 96.0,130.0 88.0,138.0 80.0,130.0 80.0,96.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="40.0,134.0 80.0,134.0 90.0,142.0 80.0,150.0 40.0,150.0 30.0,142.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="32.0,88.0 40.0,96.0 40.0,130.0 32.0,138.0 24.0,130.0 24.0,96.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="32.0,32.0 40.0,40.0 40.0,74.0 32.0,82.0 24.0,74.0 24.0,40.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="40.0,78.0 80.0,78.0 90.0,86.0 80.0,94.0 40.0,94.0 30.0,86.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <circle cx="102.0" cy="142.0" r="4.0" fill="#6f846b" opacity="0.22"/>
+  <polygon points="126.0,22.0 166.0,22.0 176.0,30.0 166.0,38.0 126.0,38.0 116.0,30.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="174.0,32.0 182.0,40.0 182.0,74.0 174.0,82.0 166.0,74.0 166.0,40.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="174.0,88.0 182.0,96.0 182.0,130.0 174.0,138.0 166.0,130.0 166.0,96.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="126.0,134.0 166.0,134.0 176.0,142.0 166.0,150.0 126.0,150.0 116.0,142.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="118.0,88.0 126.0,96.0 126.0,130.0 118.0,138.0 110.0,130.0 110.0,96.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="118.0,32.0 126.0,40.0 126.0,74.0 118.0,82.0 110.0,74.0 110.0,40.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="126.0,78.0 166.0,78.0 176.0,86.0 166.0,94.0 126.0,94.0 116.0,86.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <circle cx="188.0" cy="142.0" r="4.0" fill="#6f846b" opacity="0.22"/>
+  <circle cx="204.0" cy="62.0" r="5.0" fill="#15351f" opacity="1.00" filter="url(#segment-glow)"/>
+  <circle cx="204.0" cy="102.0" r="5.0" fill="#15351f" opacity="1.00" filter="url(#segment-glow)"/>
+  <polygon points="240.0,22.0 280.0,22.0 290.0,30.0 280.0,38.0 240.0,38.0 230.0,30.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="288.0,32.0 296.0,40.0 296.0,74.0 288.0,82.0 280.0,74.0 280.0,40.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="288.0,88.0 296.0,96.0 296.0,130.0 288.0,138.0 280.0,130.0 280.0,96.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="240.0,134.0 280.0,134.0 290.0,142.0 280.0,150.0 240.0,150.0 230.0,142.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="232.0,88.0 240.0,96.0 240.0,130.0 232.0,138.0 224.0,130.0 224.0,96.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="232.0,32.0 240.0,40.0 240.0,74.0 232.0,82.0 224.0,74.0 224.0,40.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="240.0,78.0 280.0,78.0 290.0,86.0 280.0,94.0 240.0,94.0 230.0,86.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <circle cx="302.0" cy="142.0" r="4.0" fill="#6f846b" opacity="0.22"/>
+  <polygon points="326.0,22.0 366.0,22.0 376.0,30.0 366.0,38.0 326.0,38.0 316.0,30.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="374.0,32.0 382.0,40.0 382.0,74.0 374.0,82.0 366.0,74.0 366.0,40.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="374.0,88.0 382.0,96.0 382.0,130.0 374.0,138.0 366.0,130.0 366.0,96.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="326.0,134.0 366.0,134.0 376.0,142.0 366.0,150.0 326.0,150.0 316.0,142.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="318.0,88.0 326.0,96.0 326.0,130.0 318.0,138.0 310.0,130.0 310.0,96.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="318.0,32.0 326.0,40.0 326.0,74.0 318.0,82.0 310.0,74.0 310.0,40.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="326.0,78.0 366.0,78.0 376.0,86.0 366.0,94.0 326.0,94.0 316.0,86.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <circle cx="388.0" cy="142.0" r="4.0" fill="#15351f" opacity="1.00" filter="url(#segment-glow)"/>
+  <polygon points="412.0,22.0 452.0,22.0 462.0,30.0 452.0,38.0 412.0,38.0 402.0,30.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="460.0,32.0 468.0,40.0 468.0,74.0 460.0,82.0 452.0,74.0 452.0,40.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="460.0,88.0 468.0,96.0 468.0,130.0 460.0,138.0 452.0,130.0 452.0,96.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="412.0,134.0 452.0,134.0 462.0,142.0 452.0,150.0 412.0,150.0 402.0,142.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="404.0,88.0 412.0,96.0 412.0,130.0 404.0,138.0 396.0,130.0 396.0,96.0" fill="#6f846b" opacity="0.22" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1"/>
+  <polygon points="404.0,32.0 412.0,40.0 412.0,74.0 404.0,82.0 396.0,74.0 396.0,40.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <polygon points="412.0,78.0 452.0,78.0 462.0,86.0 452.0,94.0 412.0,94.0 402.0,86.0" fill="#15351f" opacity="1.00" stroke="#edf4e7" stroke-opacity="0.16" stroke-width="1" filter="url(#segment-glow)"/>
+  <circle cx="474.0" cy="142.0" r="4.0" fill="#6f846b" opacity="0.22"/>
+  <path d="M18 18 H480 Q488 18 488 28 V54 C418 42 198 36 18 48 Z" fill="#ffffff" opacity="0.18"/>
+</svg>

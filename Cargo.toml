@@ -2,5 +2,13 @@
 name = "seg-lcd-rust"
 version = "0.1.0"
 edition = "2024"
+default-run = "seg-lcd-rust"
+description = "A Rust seven-segment LCD simulator with terminal, SVG, and native GUI renderers."
+license = "MIT"
+repository = "https://github.com/Forjd/seg-lcd-rust"
+readme = "README.md"
+keywords = ["lcd", "seven-segment", "svg", "egui", "simulator"]
+categories = ["command-line-utilities", "graphics", "gui"]
 
 [dependencies]
+eframe = "0.31"
