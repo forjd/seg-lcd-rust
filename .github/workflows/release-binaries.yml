@@ -4,6 +4,12 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build assets for
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -40,6 +46,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -54,9 +62,11 @@ jobs:
 
       - name: Package
         shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           set -euo pipefail
-          package="seg-lcd-rust-${GITHUB_REF_NAME}-${{ matrix.name }}"
+          package="seg-lcd-rust-${RELEASE_TAG}-${{ matrix.name }}"
           mkdir -p "dist/$package"
           cp "target/${{ matrix.target }}/release/seg-lcd-rust${{ matrix.ext }}" "dist/$package/"
           cp "target/${{ matrix.target }}/release/seg-lcd-rust-gui${{ matrix.ext }}" "dist/$package/"
@@ -71,6 +81,7 @@ jobs:
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.release.tag_name || inputs.tag }}
           files: |
             dist/*.tar.gz
             dist/*.zip
