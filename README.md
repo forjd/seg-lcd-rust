@@ -38,6 +38,43 @@ cargo run -- --svg custom.svg --on 102418 --off 6b7a62 --bg dbe5d2 --panel c3d0b
 `cargo run -- ...` runs the CLI by default. Use `cargo run --bin seg-lcd-rust-gui`
 for the desktop app.
 
+## Install
+
+Install the latest Linux or macOS release binaries with:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Forjd/seg-lcd-rust/main/install.sh | sh
+```
+
+By default this installs both binaries to `~/.local/bin`:
+
+- `seg-lcd-rust`
+- `seg-lcd-rust-gui`
+
+Install to a custom directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Forjd/seg-lcd-rust/main/install.sh | sh -s -- --dir /usr/local/bin
+```
+
+Install a specific release:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Forjd/seg-lcd-rust/main/install.sh | sh -s -- --version v0.2.0
+```
+
+Windows binaries are available from GitHub Releases, but the install script is
+currently for Linux and macOS only.
+
+On macOS, the GUI binary is not signed or notarized yet, so Gatekeeper may ask
+you to approve it before first launch.
+
+Uninstall:
+
+```bash
+rm ~/.local/bin/seg-lcd-rust ~/.local/bin/seg-lcd-rust-gui
+```
+
 ## GUI
 
 Run the desktop GUI with:
