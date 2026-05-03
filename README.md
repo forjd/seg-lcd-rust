@@ -13,6 +13,7 @@ It includes:
 - a terminal renderer
 - a browser-viewable SVG exporter
 - a native `egui` desktop GUI
+- WebAssembly bindings for browser demos
 - a shared library for parsing text, segment masks, themes, geometry, terminal
   rendering, and SVG rendering
 
@@ -90,6 +91,25 @@ The GUI provides a live LCD preview, editable display text, theme selection,
 color controls, inactive-segment opacity, glow and glass toggles, and an SVG
 export button that writes `gui-display.svg`.
 
+## WebAssembly
+
+Build the Rust library as a browser-loadable Wasm package with:
+
+```bash
+cargo install wasm-pack
+wasm-pack build --target web --out-dir web/pkg
+```
+
+Then serve the static demo from the project root:
+
+```bash
+python3 -m http.server 8080
+```
+
+Open <http://localhost:8080/web/>. The demo calls the Rust SVG renderer through
+the Wasm exports in `src/wasm.rs`, so browser output stays aligned with the CLI
+and GUI renderers.
+
 ## Library
 
 The shared library can parse display text and render terminal or SVG output:
@@ -106,6 +126,7 @@ let svg = render_svg(text, LcdStyle::default());
 
 - `src/lib.rs` contains the shared segment model, parser, themes, terminal
   renderer, SVG renderer, and segment geometry.
+- `src/wasm.rs` exposes browser-facing WebAssembly bindings for SVG rendering.
 - `src/main.rs` is the CLI wrapper.
 - `src/bin/gui.rs` is the native `egui` desktop app.
 

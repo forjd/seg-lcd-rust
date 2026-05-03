@@ -10,8 +10,14 @@ readme = "README.md"
 keywords = ["lcd", "seven-segment", "svg", "egui", "simulator"]
 categories = ["command-line-utilities", "graphics", "gui"]
 
-[dependencies]
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 eframe = "0.31"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
 
 [[bin]]
 name = "seg-lcd-rust-gui"

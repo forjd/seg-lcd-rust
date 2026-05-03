@@ -7,6 +7,9 @@ pub const F: u8 = 1 << 5;
 pub const G: u8 = 1 << 6;
 pub const ALL: u8 = A | B | C | D | E | F | G;
 
+#[cfg(target_arch = "wasm32")]
+mod wasm;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Theme {
     Classic,

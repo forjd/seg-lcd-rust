@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>seg-lcd-rust WebAssembly Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="display-shell" aria-label="LCD preview">
+        <div id="preview" class="preview"></div>
+      </section>
+
+      <aside class="controls" aria-label="Display controls">
+        <h1>seg-lcd-rust</h1>
+
+        <label class="field">
+          <span>Text</span>
+          <input id="text" type="text" spellcheck="false" autocomplete="off" />
+        </label>
+
+        <label class="field">
+          <span>Theme</span>
+          <select id="theme"></select>
+        </label>
+
+        <div class="toggles">
+          <label>
+            <input id="glow" type="checkbox" />
+            <span>Glow</span>
+          </label>
+          <label>
+            <input id="glass" type="checkbox" checked />
+            <span>Glass</span>
+          </label>
+        </div>
+
+        <div class="custom">
+          <label>
+            <span>Active</span>
+            <input id="on" type="color" value="#1f3328" />
+          </label>
+          <label>
+            <span>Inactive</span>
+            <input id="off" type="color" value="#7f9278" />
+          </label>
+          <label>
+            <span>Background</span>
+            <input id="background" type="color" value="#d8e1cf" />
+          </label>
+          <label>
+            <span>Panel</span>
+            <input id="panel" type="color" value="#c7d2be" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Inactive opacity</span>
+          <input
+            id="inactive-opacity"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.24"
+          />
+        </label>
+
+        <button id="download" type="button">Download SVG</button>
+        <p id="error" class="error" role="alert"></p>
+      </aside>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
