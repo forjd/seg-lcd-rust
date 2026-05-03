@@ -7,6 +7,7 @@ Thanks for helping improve `seg-lcd-rust`.
 Install the Rust toolchain from <https://rustup.rs/>.
 
 ```bash
+git config core.hooksPath scripts/git-hooks
 cargo run -- 0123456789
 cargo run --bin gui
 ```
@@ -45,6 +46,29 @@ fix: preserve decimal points in svg export
 docs: clarify gui usage
 refactor: share renderer geometry
 ```
+
+This repo includes a versioned `commit-msg` hook. Enable it with:
+
+```bash
+git config core.hooksPath scripts/git-hooks
+```
+
+Pull requests also check that the PR title follows Conventional Commits, which
+keeps squash-merged commits release-friendly.
+
+## Releases
+
+Releases are automated with Release Please. Conventional Commits merged to
+`main` are used to open or update a release PR. Merging that release PR creates
+the GitHub Release, updates `CHANGELOG.md`, and bumps `Cargo.toml`.
+
+Common release-driving commit types:
+
+- `fix:` creates a patch release.
+- `feat:` creates a minor release.
+- `feat!:` or a `BREAKING CHANGE:` footer creates a major release.
+- `docs:`, `test:`, `refactor:`, and `chore:` are included in history but do
+  not normally trigger a release by themselves.
 
 ## Generated Files
 

@@ -22,6 +22,7 @@ rtk cargo clippy --all-targets -- -D warnings
 rtk cargo run -- 0123456789
 rtk cargo run -- --svg display.svg --theme amber 10:58.42
 rtk cargo run --bin gui
+rtk git config core.hooksPath scripts/git-hooks
 ```
 
 Use `cargo run -- ...` for the CLI. `Cargo.toml` sets `default-run =
@@ -39,6 +40,12 @@ exists.
   `src/lib.rs`.
 - Generated SVGs such as `display.svg` or `gui-display.svg` are local artifacts
   unless intentionally committed as fixtures.
+- Commit messages should follow Conventional Commits. The versioned
+  `scripts/git-hooks/commit-msg` hook enforces this locally when
+  `core.hooksPath` is configured.
+- Releases are managed by Release Please from Conventional Commits on `main`.
+  Do not hand-edit release PR changes unless the release automation needs a
+  targeted fix.
 
 ## Verification
 

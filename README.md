@@ -77,6 +77,15 @@ cargo test
 cargo clippy --all-targets -- -D warnings
 ```
 
+## Releases
+
+Releases are automated with Release Please from Conventional Commits. Changes
+merged to `main` update a release PR; merging that PR creates the GitHub Release,
+updates `CHANGELOG.md`, and bumps the crate version.
+
+Pull requests should use a Conventional Commit title such as `feat: add segment
+editor` or `fix(svg): preserve decimal points`.
+
 ## Options
 
 - `--labels` renders segment names (`A` through `G`) instead of filled cells.

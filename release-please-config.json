@@ -1,0 +1,9 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "rust",
+      "package-name": "seg-lcd-rust",
+      "include-component-in-tag": false
+    }
+  }
+}
