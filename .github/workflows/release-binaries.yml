@@ -93,6 +93,35 @@ jobs:
             tar -czf "dist/$package.tar.gz" -C dist "$package"
           fi
 
+      - name: Smoke test archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p smoke
+          archive="$(find dist -maxdepth 1 \( -name '*.tar.gz' -o -name '*.zip' \) | head -n 1)"
+          if [[ "$archive" == *.zip ]]; then
+            7z x "$archive" -osmoke
+          else
+            tar -xzf "$archive" -C smoke
+          fi
+
+          cli="$(find smoke -type f \( -name 'seg-lcd-rust' -o -name 'seg-lcd-rust.exe' \) | head -n 1)"
+          gui="$(find smoke -type f \( -name 'seg-lcd-rust-gui' -o -name 'seg-lcd-rust-gui.exe' \) | head -n 1)"
+
+          test -n "$cli"
+          test -n "$gui"
+          "$cli" --help
+          "$cli" 12345
+
+      - name: Upload archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+          if-no-files-found: error
+
       - name: Upload release asset
         uses: softprops/action-gh-release@v3
         with:
@@ -100,3 +129,27 @@ jobs:
           files: |
             dist/*.tar.gz
             dist/*.zip
+
+  checksums:
+    name: Generate checksums
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download archive artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: checksum-input
+          merge-multiple: true
+
+      - name: Generate SHA256SUMS.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd checksum-input
+          sha256sum -- *.tar.gz *.zip > SHA256SUMS.txt
+
+      - name: Upload checksum asset
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.event.release.tag_name || inputs.tag }}
+          files: checksum-input/SHA256SUMS.txt

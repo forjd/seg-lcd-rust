@@ -69,9 +69,15 @@ if command -v curl >/dev/null 2>&1; then
   download() {
     curl -fsSL "$1" -o "$2"
   }
+  download_optional() {
+    curl -fsSL "$1" -o "$2" >/dev/null 2>&1
+  }
 elif command -v wget >/dev/null 2>&1; then
   download() {
     wget -qO "$2" "$1"
+  }
+  download_optional() {
+    wget -qO "$2" "$1" >/dev/null 2>&1
   }
 else
   echo "error: curl or wget is required" >&2
@@ -110,17 +116,22 @@ if [ "$os" = "linux" ] && [ "$arch" != "x86_64" ]; then
 fi
 
 if [ "$VERSION" = "latest" ]; then
-  release_url="https://github.com/$REPO/releases/latest/download"
-  version_label="latest"
-else
-  release_url="https://github.com/$REPO/releases/download/$VERSION"
-  version_label="$VERSION"
+  metadata="$(mktemp)"
+  download "https://api.github.com/repos/$REPO/releases/latest" "$metadata"
+  VERSION="$(sed -n 's/.*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' "$metadata" | head -n 1)"
+  rm -f "$metadata"
+  if [ -z "$VERSION" ]; then
+    echo "error: could not resolve latest release version" >&2
+    exit 1
+  fi
 fi
 
-asset="seg-lcd-rust-${version_label}-${os}-${arch}.tar.gz"
+release_url="https://github.com/$REPO/releases/download/$VERSION"
+asset="seg-lcd-rust-${VERSION}-${os}-${arch}.tar.gz"
 url="$release_url/$asset"
 tmp_dir="$(mktemp -d)"
 archive="$tmp_dir/$asset"
+checksums="$tmp_dir/SHA256SUMS.txt"
 
 cleanup() {
   rm -rf "$tmp_dir"
@@ -129,6 +140,31 @@ trap cleanup EXIT INT TERM
 
 echo "Downloading $url"
 download "$url" "$archive"
+
+if download_optional "$release_url/SHA256SUMS.txt" "$checksums"; then
+  expected="$(grep "[[:space:]]$asset$" "$checksums" | awk '{print $1}' | head -n 1)"
+  if [ -z "$expected" ]; then
+    echo "error: SHA256SUMS.txt does not contain $asset" >&2
+    exit 1
+  fi
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual="$(sha256sum "$archive" | awk '{print $1}')"
+  elif command -v shasum >/dev/null 2>&1; then
+    actual="$(shasum -a 256 "$archive" | awk '{print $1}')"
+  else
+    echo "error: SHA256SUMS.txt is available, but sha256sum or shasum was not found" >&2
+    exit 1
+  fi
+
+  if [ "$actual" != "$expected" ]; then
+    echo "error: checksum verification failed for $asset" >&2
+    exit 1
+  fi
+  echo "Verified checksum for $asset"
+else
+  echo "Warning: no SHA256SUMS.txt found for $VERSION; skipping checksum verification" >&2
+fi
 
 mkdir -p "$INSTALL_DIR"
 tar -xzf "$archive" -C "$tmp_dir"

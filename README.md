@@ -60,8 +60,11 @@ curl -fsSL https://raw.githubusercontent.com/Forjd/seg-lcd-rust/main/install.sh 
 Install a specific release:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Forjd/seg-lcd-rust/main/install.sh | sh -s -- --version v0.2.0
+curl -fsSL https://raw.githubusercontent.com/Forjd/seg-lcd-rust/main/install.sh | sh -s -- --version v0.3.0
 ```
+
+When a release includes `SHA256SUMS.txt`, the install script verifies the
+downloaded archive before installing.
 
 Windows binaries are available from GitHub Releases, but the install script is
 currently for Linux and macOS only.
@@ -129,11 +132,25 @@ The CLI binary is `target/release/seg-lcd-rust`. The GUI binary is
 
 Releases are automated with Release Please from Conventional Commits. Changes
 merged to `main` update a release PR; merging that PR creates the GitHub Release,
-updates `CHANGELOG.md`, and bumps the crate version. Published GitHub Releases
-also build and attach CLI/GUI binary archives for Linux, macOS, and Windows.
+updates `CHANGELOG.md`, and bumps the crate version. When Release Please creates
+a release, the binary workflow builds and attaches CLI/GUI archives for Linux,
+macOS, and Windows, plus `SHA256SUMS.txt`.
 
 Pull requests should use a Conventional Commit title such as `feat: add segment
 editor` or `fix(svg): preserve decimal points`.
+
+### Publishing A Release
+
+1. Merge feature and fix commits to `main` using Conventional Commit messages.
+2. Wait for Release Please to open or update its release PR.
+3. Review the generated version bump and `CHANGELOG.md` entries.
+4. Merge the Release Please PR.
+5. Confirm the release was created and the `Release Binaries` workflow passed.
+6. Check the GitHub Release for platform archives and `SHA256SUMS.txt`.
+
+The release archives are smoke-tested in CI before upload by unpacking each
+archive, checking that both binaries are present, and running the CLI with
+`--help` and sample display text.
 
 ## Options
 
