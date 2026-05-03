@@ -25,7 +25,7 @@ is not yet stable.
 
 ```bash
 cargo run -- 0123456789
-cargo run --bin gui
+cargo run --bin seg-lcd-rust-gui
 cargo run -- --labels HELP
 cargo run -- --inverse 10:58.42
 cargo run -- 12:34.5 --masks
@@ -35,15 +35,15 @@ cargo run -- --svg blue.svg --theme blue --glow 88:88.88
 cargo run -- --svg custom.svg --on 102418 --off 6b7a62 --bg dbe5d2 --panel c3d0ba --inactive-opacity 0.18 1234
 ```
 
-`cargo run -- ...` runs the CLI by default. Use `cargo run --bin gui` for the
-desktop app.
+`cargo run -- ...` runs the CLI by default. Use `cargo run --bin seg-lcd-rust-gui`
+for the desktop app.
 
 ## GUI
 
 Run the desktop GUI with:
 
 ```bash
-cargo run --bin gui
+cargo run --bin seg-lcd-rust-gui
 ```
 
 The GUI provides a live LCD preview, editable display text, theme selection,
@@ -77,11 +77,23 @@ cargo test
 cargo clippy --all-targets -- -D warnings
 ```
 
+## Build Binaries
+
+Build optimized local binaries with:
+
+```bash
+cargo build --release --bins
+```
+
+The CLI binary is `target/release/seg-lcd-rust`. The GUI binary is
+`target/release/seg-lcd-rust-gui`.
+
 ## Releases
 
 Releases are automated with Release Please from Conventional Commits. Changes
 merged to `main` update a release PR; merging that PR creates the GitHub Release,
-updates `CHANGELOG.md`, and bumps the crate version.
+updates `CHANGELOG.md`, and bumps the crate version. Published GitHub Releases
+also build and attach CLI/GUI binary archives for Linux, macOS, and Windows.
 
 Pull requests should use a Conventional Commit title such as `feat: add segment
 editor` or `fix(svg): preserve decimal points`.

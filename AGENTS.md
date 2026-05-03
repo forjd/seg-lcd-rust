@@ -21,7 +21,7 @@ rtk cargo test
 rtk cargo clippy --all-targets -- -D warnings
 rtk cargo run -- 0123456789
 rtk cargo run -- --svg display.svg --theme amber 10:58.42
-rtk cargo run --bin gui
+rtk cargo run --bin seg-lcd-rust-gui
 rtk git config core.hooksPath scripts/git-hooks
 ```
 
@@ -60,5 +60,5 @@ rtk cargo clippy --all-targets -- -D warnings
 For GUI changes, also run:
 
 ```bash
-rtk cargo check --bin gui
+rtk cargo check --bin seg-lcd-rust-gui
 ```

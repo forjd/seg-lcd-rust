@@ -9,7 +9,7 @@ Install the Rust toolchain from <https://rustup.rs/>.
 ```bash
 git config core.hooksPath scripts/git-hooks
 cargo run -- 0123456789
-cargo run --bin gui
+cargo run --bin seg-lcd-rust-gui
 ```
 
 ## Checks
@@ -25,7 +25,7 @@ cargo clippy --all-targets -- -D warnings
 For GUI-specific changes, also run:
 
 ```bash
-cargo check --bin gui
+cargo check --bin seg-lcd-rust-gui
 ```
 
 ## Architecture

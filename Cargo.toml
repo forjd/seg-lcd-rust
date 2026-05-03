@@ -12,3 +12,7 @@ categories = ["command-line-utilities", "graphics", "gui"]
 
 [dependencies]
 eframe = "0.31"
+
+[[bin]]
+name = "seg-lcd-rust-gui"
+path = "src/bin/gui.rs"
