@@ -1,7 +1,8 @@
 use std::{env, fs, path::PathBuf};
 
 use seg_lcd_rust::{
-    HexColor, LcdStyle, TerminalStyle, Theme, parse_opacity, print_masks, render_svg, render_text,
+    Cell, CellKind, HexColor, LcdStyle, TerminalStyle, Theme, parse_opacity, parse_segment_mask,
+    print_masks, render_cells_svg, render_cells_text, render_svg, render_text, segment_names,
 };
 
 fn main() {
@@ -20,10 +21,10 @@ fn main() {
         return;
     }
 
-    println!("{}", render_text(&config.text, config.terminal_style));
+    println!("{}", config.render_text());
 
     if let Some(path) = &config.svg_path {
-        if let Err(error) = fs::write(path, render_svg(&config.text, config.lcd_style)) {
+        if let Err(error) = fs::write(path, config.render_svg()) {
             eprintln!("failed to write SVG to {}: {error}", path.display());
             std::process::exit(1);
         }
@@ -33,18 +34,24 @@ fn main() {
 
     if config.dump_masks {
         println!();
-        print_masks(&config.text);
+        config.print_masks();
     }
 }
 
 #[derive(Debug, Clone)]
 struct Config {
-    text: String,
+    display: DisplayInput,
     terminal_style: TerminalStyle,
     dump_masks: bool,
     svg_path: Option<PathBuf>,
     lcd_style: LcdStyle,
     help: bool,
+}
+
+#[derive(Debug, Clone)]
+enum DisplayInput {
+    Text(String),
+    Cells(Vec<Cell>),
 }
 
 impl Config {
@@ -55,6 +62,7 @@ impl Config {
         let mut lcd_style = LcdStyle::default();
         let mut help = false;
         let mut text_parts = Vec::new();
+        let mut mask_cells = Vec::new();
         let mut args = args.peekable();
 
         while let Some(arg) = args.next() {
@@ -67,6 +75,13 @@ impl Config {
                         .next()
                         .ok_or_else(|| "--svg requires an output path".to_string())?;
                     svg_path = Some(PathBuf::from(path));
+                }
+                "--mask" => {
+                    let mask = parse_segment_mask(&next_option_value(&mut args, "--mask")?)?;
+                    mask_cells.push(Cell {
+                        kind: CellKind::Segments(mask),
+                        decimal: false,
+                    });
                 }
                 "--theme" => {
                     let theme = args
@@ -106,18 +121,57 @@ impl Config {
             }
         }
 
-        Ok(Self {
-            text: if text_parts.is_empty() {
+        let display = if mask_cells.is_empty() {
+            DisplayInput::Text(if text_parts.is_empty() {
                 "12:34.5".to_string()
             } else {
                 text_parts.join(" ")
-            },
+            })
+        } else if text_parts.is_empty() {
+            DisplayInput::Cells(mask_cells)
+        } else {
+            return Err("--mask cannot be combined with display text".to_string());
+        };
+
+        Ok(Self {
+            display,
             terminal_style,
             dump_masks,
             svg_path,
             lcd_style,
             help,
         })
+    }
+
+    fn render_text(&self) -> String {
+        match &self.display {
+            DisplayInput::Text(text) => render_text(text, self.terminal_style),
+            DisplayInput::Cells(cells) => render_cells_text(cells, self.terminal_style),
+        }
+    }
+
+    fn render_svg(&self) -> String {
+        match &self.display {
+            DisplayInput::Text(text) => render_svg(text, self.lcd_style),
+            DisplayInput::Cells(cells) => render_cells_svg(cells, self.lcd_style),
+        }
+    }
+
+    fn print_masks(&self) {
+        match &self.display {
+            DisplayInput::Text(text) => print_masks(text),
+            DisplayInput::Cells(cells) => {
+                for cell in cells {
+                    match cell.kind {
+                        CellKind::Segments(mask) => {
+                            println!("{mask:07b}  {}", segment_names(mask).join(","));
+                        }
+                        CellKind::Colon => println!(":  colon"),
+                        CellKind::Blank => println!("0000000"),
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -136,6 +190,7 @@ fn print_usage() {
          Options:\n  --inverse   render dark inactive LCD blocks with clear active segments\n  \
          --labels    render segment letters instead of filled segments\n  \
          --masks     print each character's seven-bit segment mask\n  \
+         --mask MASK  render one custom digit from segments A-G, 0b bits, or 0x hex\n  \
          --svg PATH  write a browser-viewable SVG rendering\n  \
          --theme NAME  SVG theme: classic, green, amber, blue, negative\n  \
          --on HEX    SVG active segment color\n  \
@@ -148,6 +203,7 @@ fn print_usage() {
          --no-glass  remove SVG glass highlight overlay\n  \
          -h, --help  show this help\n\n\
          Examples:\n  cargo run -- 0123456789\n  cargo run -- --labels HELP\n  \
+         cargo run -- --mask ABDEG --mask BCG\n  \
          cargo run -- --svg display.svg --theme amber 10:58.42\n  \
          cargo run -- --svg display.svg --theme blue --glow 88:88.88"
     );

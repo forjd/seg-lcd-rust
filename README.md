@@ -30,6 +30,7 @@ cargo run --bin seg-lcd-rust-gui
 cargo run -- --labels HELP
 cargo run -- --inverse 10:58.42
 cargo run -- 12:34.5 --masks
+cargo run -- --mask ABDEG --mask BCG --labels
 cargo run -- --svg display.svg 0123456789
 cargo run -- --svg amber.svg --theme amber 10:58.42
 cargo run -- --svg blue.svg --theme blue --glow 88:88.88
@@ -194,6 +195,10 @@ archive, checking that both binaries are present, and running the CLI with
 - `--labels` renders segment names (`A` through `G`) instead of filled cells.
 - `--inverse` renders active LCD segments as clear space against inactive blocks.
 - `--masks` prints each character's seven-bit segment mask.
+- `--mask <value>` renders a custom digit from segment letters such as `ABDEG`,
+  comma-separated segment letters such as `A,B,D,E,G`, binary bits such as
+  `0b1011011`, or hex bits such as `0x5b`. Repeat it to render multiple custom
+  digits.
 - `--svg <path>` writes a browser-viewable SVG rendering with faint inactive
   LCD segments.
 - `--theme <name>` applies an SVG theme: `classic`, `green`, `amber`, `blue`,

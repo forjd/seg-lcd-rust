@@ -186,6 +186,72 @@ pub fn parse_opacity(value: &str) -> Result<f32, String> {
     }
 }
 
+pub fn parse_segment_mask(value: &str) -> Result<u8, String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return Err("segment mask cannot be empty".to_string());
+    }
+
+    if let Some(binary) = trimmed
+        .strip_prefix("0b")
+        .or_else(|| trimmed.strip_prefix("0B"))
+    {
+        return parse_numeric_segment_mask(binary, 2, value);
+    }
+
+    if let Some(hex) = trimmed
+        .strip_prefix("0x")
+        .or_else(|| trimmed.strip_prefix("0X"))
+    {
+        return parse_numeric_segment_mask(hex, 16, value);
+    }
+
+    let mut mask = 0;
+    let mut saw_segment = false;
+
+    for ch in trimmed.chars() {
+        let segment = match ch.to_ascii_uppercase() {
+            'A' => A,
+            'B' => B,
+            'C' => C,
+            'D' => D,
+            'E' => E,
+            'F' => F,
+            'G' => G,
+            ',' | '+' | '-' | '_' | ' ' => continue,
+            _ => {
+                return Err(format!(
+                    "invalid segment mask: {value}. Use segment letters A-G, 0b1011011, or 0x5b"
+                ));
+            }
+        };
+        mask |= segment;
+        saw_segment = true;
+    }
+
+    if saw_segment {
+        Ok(mask)
+    } else {
+        Err(format!(
+            "invalid segment mask: {value}. Use segment letters A-G, 0b1011011, or 0x5b"
+        ))
+    }
+}
+
+fn parse_numeric_segment_mask(value: &str, radix: u32, original: &str) -> Result<u8, String> {
+    let mask = u8::from_str_radix(value, radix).map_err(|_| {
+        format!("invalid segment mask: {original}. Use segment letters A-G, 0b1011011, or 0x5b")
+    })?;
+
+    if mask <= ALL {
+        Ok(mask)
+    } else {
+        Err(format!(
+            "segment mask {original} enables bits outside the seven segments A-G"
+        ))
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct TerminalStyle {
     pub on: char,
@@ -247,6 +313,10 @@ pub fn parse_cells(text: &str) -> Vec<Cell> {
 
 pub fn render_text(text: &str, style: TerminalStyle) -> String {
     let cells = parse_cells(text);
+    render_cells_text(&cells, style)
+}
+
+pub fn render_cells_text(cells: &[Cell], style: TerminalStyle) -> String {
     let row_capacity = cells.len().saturating_mul(7);
     let mut rows = [
         String::with_capacity(row_capacity),
@@ -256,7 +326,7 @@ pub fn render_text(text: &str, style: TerminalStyle) -> String {
         String::with_capacity(row_capacity),
     ];
 
-    for cell in cells {
+    for cell in cells.iter().copied() {
         push_text_cell(&mut rows, cell, style);
     }
 
@@ -342,7 +412,11 @@ fn segment_char(mask: u8, segment: u8, label: char, style: TerminalStyle) -> cha
 
 pub fn render_svg(text: &str, style: LcdStyle) -> String {
     let cells = parse_cells(text);
-    let width = svg_width(&cells);
+    render_cells_svg(&cells, style)
+}
+
+pub fn render_cells_svg(cells: &[Cell], style: LcdStyle) -> String {
+    let width = svg_width(cells);
     let height = 164;
     let mut svg = String::new();
 
@@ -373,7 +447,7 @@ pub fn render_svg(text: &str, style: LcdStyle) -> String {
     ));
 
     let mut x = 24.0;
-    for cell in cells {
+    for cell in cells.iter().copied() {
         match cell.kind {
             CellKind::Segments(mask) => {
                 push_svg_digit(&mut svg, x, 22.0, mask, cell.decimal, style);
@@ -609,5 +683,34 @@ mod tests {
         assert_eq!(parse_opacity("0.25"), Ok(0.25));
         assert!(parse_opacity("-0.1").is_err());
         assert!(parse_opacity("1.1").is_err());
+    }
+
+    #[test]
+    fn parses_custom_segment_masks() {
+        assert_eq!(parse_segment_mask("ABDEG"), Ok(A | B | D | E | G));
+        assert_eq!(parse_segment_mask("a,b,d,e,g"), Ok(A | B | D | E | G));
+        assert_eq!(parse_segment_mask("0b1011011"), Ok(A | B | D | E | G));
+        assert_eq!(parse_segment_mask("0x5b"), Ok(A | B | D | E | G));
+    }
+
+    #[test]
+    fn rejects_invalid_custom_segment_masks() {
+        assert!(parse_segment_mask("").is_err());
+        assert!(parse_segment_mask("Q").is_err());
+        assert!(parse_segment_mask("0x80").is_err());
+    }
+
+    #[test]
+    fn renders_custom_mask_cells() {
+        let cells = vec![Cell {
+            kind: CellKind::Segments(A | B | D | E | G),
+            decimal: false,
+        }];
+
+        assert_eq!(
+            render_cells_text(&cells, TerminalStyle::default()),
+            render_text("2", TerminalStyle::default())
+        );
+        assert!(render_cells_svg(&cells, LcdStyle::default()).contains("<polygon"));
     }
 }
