@@ -523,21 +523,32 @@ pub fn vertical_points(x: f32, y: f32) -> [(f32, f32); 6] {
     [
         (x + 8.0, y),
         (x + 16.0, y + 8.0),
-        (x + 16.0, y + 42.0),
-        (x + 8.0, y + 50.0),
-        (x, y + 42.0),
+        (x + 16.0, y + 48.0),
+        (x + 8.0, y + 56.0),
+        (x, y + 48.0),
         (x, y + 8.0),
     ]
 }
 
+pub fn digit_segment_points(segment: u8) -> [(f32, f32); 6] {
+    match segment {
+        A => horizontal_points(6.0, 0.0),
+        B => vertical_points(58.0, 8.0),
+        C => vertical_points(58.0, 64.0),
+        D => horizontal_points(6.0, 112.0),
+        E => vertical_points(-2.0, 64.0),
+        F => vertical_points(-2.0, 8.0),
+        G => horizontal_points(6.0, 56.0),
+        _ => panic!("unknown segment bit: {segment}"),
+    }
+}
+
 fn push_svg_digit(svg: &mut String, x: f32, y: f32, mask: u8, decimal: bool, style: LcdStyle) {
-    push_svg_segment(svg, A, mask, horizontal_points(x + 6.0, y), style);
-    push_svg_segment(svg, B, mask, vertical_points(x + 56.0, y + 10.0), style);
-    push_svg_segment(svg, C, mask, vertical_points(x + 56.0, y + 66.0), style);
-    push_svg_segment(svg, D, mask, horizontal_points(x + 6.0, y + 112.0), style);
-    push_svg_segment(svg, E, mask, vertical_points(x, y + 66.0), style);
-    push_svg_segment(svg, F, mask, vertical_points(x, y + 10.0), style);
-    push_svg_segment(svg, G, mask, horizontal_points(x + 6.0, y + 56.0), style);
+    for (segment, _) in SEGMENTS {
+        let points =
+            digit_segment_points(segment).map(|(point_x, point_y)| (x + point_x, y + point_y));
+        push_svg_segment(svg, segment, mask, points, style);
+    }
     push_svg_circle(svg, x + 78.0, y + 120.0, 4.0, decimal, style);
 }
 
@@ -743,6 +754,26 @@ mod tests {
             render_text("2", TerminalStyle::default())
         );
         assert!(render_cells_svg(&cells, LcdStyle::default()).contains("<polygon"));
+    }
+
+    #[test]
+    fn vertical_segment_tips_align_with_horizontal_segment_tips() {
+        let top = horizontal_points(6.0, 0.0);
+        let middle = horizontal_points(6.0, 56.0);
+        let bottom = horizontal_points(6.0, 112.0);
+        let upper_left = vertical_points(-2.0, 8.0);
+        let upper_right = vertical_points(58.0, 8.0);
+        let lower_left = vertical_points(-2.0, 64.0);
+        let lower_right = vertical_points(58.0, 64.0);
+
+        assert_eq!(upper_left[0], top[5]);
+        assert_eq!(upper_right[0], top[2]);
+        assert_eq!(upper_left[3], middle[5]);
+        assert_eq!(upper_right[3], middle[2]);
+        assert_eq!(lower_left[0], middle[5]);
+        assert_eq!(lower_right[0], middle[2]);
+        assert_eq!(lower_left[3], bottom[5]);
+        assert_eq!(lower_right[3], bottom[2]);
     }
 
     #[test]

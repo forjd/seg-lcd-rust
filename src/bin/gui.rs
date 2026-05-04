@@ -3,10 +3,9 @@ use eframe::egui::{
     Slider, Stroke, StrokeKind, Vec2, vec2,
 };
 use seg_lcd_rust::{
-    A, B, C, Cell, CellKind, D, DIGIT_ADVANCE, DIGIT_HEIGHT, DIGIT_WIDTH, E, F, G, HexColor,
-    LcdStyle, SEGMENTS, Theme, format_segment_mask_binary, format_segment_mask_hex,
-    format_segment_mask_letters, horizontal_points, parse_cells, render_cells_svg, render_svg,
-    vertical_points,
+    A, B, Cell, CellKind, D, DIGIT_ADVANCE, DIGIT_HEIGHT, DIGIT_WIDTH, E, G, HexColor, LcdStyle,
+    SEGMENTS, Theme, digit_segment_points, format_segment_mask_binary, format_segment_mask_hex,
+    format_segment_mask_letters, parse_cells, render_cells_svg, render_svg,
 };
 
 fn main() -> eframe::Result {
@@ -245,55 +244,15 @@ fn paint_digit(
     decimal: bool,
     style: LcdStyle,
 ) {
-    paint_segment(
-        painter,
-        mask,
-        A,
-        points(origin, scale, horizontal_points(6.0, 0.0)),
-        style,
-    );
-    paint_segment(
-        painter,
-        mask,
-        B,
-        points(origin, scale, vertical_points(56.0, 10.0)),
-        style,
-    );
-    paint_segment(
-        painter,
-        mask,
-        C,
-        points(origin, scale, vertical_points(56.0, 66.0)),
-        style,
-    );
-    paint_segment(
-        painter,
-        mask,
-        D,
-        points(origin, scale, horizontal_points(6.0, 112.0)),
-        style,
-    );
-    paint_segment(
-        painter,
-        mask,
-        E,
-        points(origin, scale, vertical_points(0.0, 66.0)),
-        style,
-    );
-    paint_segment(
-        painter,
-        mask,
-        F,
-        points(origin, scale, vertical_points(0.0, 10.0)),
-        style,
-    );
-    paint_segment(
-        painter,
-        mask,
-        G,
-        points(origin, scale, horizontal_points(6.0, 56.0)),
-        style,
-    );
+    for (segment, _) in SEGMENTS {
+        paint_segment(
+            painter,
+            mask,
+            segment,
+            points(origin, scale, digit_segment_points(segment)),
+            style,
+        );
+    }
     paint_dot(
         painter,
         origin + vec2(78.0 * scale, 120.0 * scale),
