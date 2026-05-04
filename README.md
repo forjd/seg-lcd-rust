@@ -8,6 +8,12 @@ calculators, digital clocks, and classic digital watches.
 
 ![Seven-segment LCD preview](docs/assets/preview.svg)
 
+## More Previews
+
+| Amber clock | Blue glow | Negative display |
+| --- | --- | --- |
+| ![Amber seven-segment LCD clock preview](docs/assets/preview-amber.svg) | ![Blue glowing seven-segment LCD preview](docs/assets/preview-blue.svg) | ![Negative seven-segment LCD text preview](docs/assets/preview-negative.svg) |
+
 It includes:
 
 - a terminal renderer
