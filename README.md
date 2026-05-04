@@ -18,6 +18,7 @@ It includes:
 
 - a terminal renderer
 - a browser-viewable SVG exporter
+- a tiny HTTP API that returns rendered SVG
 - a native `egui` desktop GUI
 - WebAssembly bindings for browser demos
 - a shared library for parsing text, segment masks, themes, geometry, terminal
@@ -41,10 +42,23 @@ cargo run -- --svg display.svg 0123456789
 cargo run -- --svg amber.svg --theme amber 10:58.42
 cargo run -- --svg blue.svg --theme blue --glow 88:88.88
 cargo run -- --svg custom.svg --on 102418 --off 6b7a62 --bg dbe5d2 --panel c3d0ba --inactive-opacity 0.18 1234
+cargo run --bin seg-lcd-rust-api -- --addr 127.0.0.1:7878
 ```
 
 `cargo run -- ...` runs the CLI by default. Use `cargo run --bin seg-lcd-rust-gui`
-for the desktop app.
+for the desktop app and `cargo run --bin seg-lcd-rust-api -- ...` for the HTTP
+API.
+
+CLI preview:
+
+```text
+$ cargo run -- 10:58.42
+        ###       ###    ###           ###
+    #  #   #  #  #      #   #  #   #      #
+                  ###    ###    ###    ###
+    #  #   #  #      #  #   #      #  #
+          ###         ###      ###  #            ###
+```
 
 ## Install
 
@@ -99,6 +113,26 @@ editor for toggling segments `A` through `G`, theme selection, color controls,
 inactive-segment opacity, glow and glass toggles, and an SVG export button that
 writes `gui-display.svg`.
 
+## HTTP API
+
+Run the basic SVG API with:
+
+```bash
+cargo run --bin seg-lcd-rust-api -- --addr 127.0.0.1:7878
+```
+
+Then request rendered SVG:
+
+```bash
+curl 'http://127.0.0.1:7878/svg?text=10%3A58.42&theme=amber'
+curl 'http://127.0.0.1:7878/svg?mask=ABDEG&mask=BCG&theme=blue&glow=true'
+```
+
+`GET /svg` returns `image/svg+xml`. Query parameters match the SVG-focused CLI
+options: `text`, `theme`, repeated `mask`, `on`, `off`, `bg`, `panel`,
+`inactive-opacity`, `glow`, and `glass`. `GET /healthz` returns a plain health
+check.
+
 ## WebAssembly
 
 Build the Rust library as a browser-loadable Wasm package with:
@@ -137,6 +171,7 @@ let svg = render_svg(text, LcdStyle::default());
   renderer, SVG renderer, and segment geometry.
 - `src/wasm.rs` exposes browser-facing WebAssembly bindings for SVG rendering.
 - `src/main.rs` is the CLI wrapper.
+- `src/bin/api.rs` is the tiny HTTP SVG API.
 - `src/bin/gui.rs` is the native `egui` desktop app.
 
 ## Checks
