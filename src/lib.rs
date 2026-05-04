@@ -344,7 +344,7 @@ pub fn render_cells_text(cells: &[Cell], style: TerminalStyle) -> String {
         if index > 0 {
             output.push('\n');
         }
-        output.push_str(row);
+        output.push_str(row.trim_end());
     }
     output
 }
@@ -377,8 +377,10 @@ fn push_text_segments(rows: &mut [String; 5], mask: u8, decimal: bool, style: Te
     push_horizontal_segment(&mut rows[2], mask, G, 'G', style);
     push_vertical_segments(&mut rows[3], mask, E, C, 'E', 'C', style);
     push_horizontal_segment(&mut rows[4], mask, D, 'D', style);
-    rows[4].push(if decimal { style.on } else { ' ' });
-    rows[4].push(' ');
+    if decimal {
+        rows[4].pop();
+        rows[4].push(style.on);
+    }
 }
 
 fn push_horizontal_segment(
@@ -681,6 +683,17 @@ mod tests {
     fn renders_the_expected_number_of_rows() {
         let output = render_text("12:34", TerminalStyle::default());
         assert_eq!(output.lines().count(), 5);
+    }
+
+    #[test]
+    fn decimal_points_do_not_widen_terminal_cells() {
+        let without_decimal = render_text("12", TerminalStyle::default());
+        let with_decimal = render_text("1.2", TerminalStyle::default());
+
+        let without_decimal_width = without_decimal.lines().map(str::len).max().unwrap();
+        let with_decimal_width = with_decimal.lines().map(str::len).max().unwrap();
+
+        assert_eq!(with_decimal_width, without_decimal_width);
     }
 
     #[test]
