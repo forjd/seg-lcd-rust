@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/forjd/seg-lcd-rust/compare/v0.5.0...v0.6.0) (2026-05-04)
+
+
+### Features
+
+* add SVG HTTP API ([493219b](https://github.com/forjd/seg-lcd-rust/commit/493219b82f1e42518611b9e85cd224e49baff4fc))
+
+
+### Bug Fixes
+
+* align LCD segment geometry ([e11c581](https://github.com/forjd/seg-lcd-rust/commit/e11c5813934fe0e4e9a0ba3813b5b78801500e47))
+* **cli:** align decimal point output ([a060203](https://github.com/forjd/seg-lcd-rust/commit/a0602032bd9378849b9e571086dcc89206b890e2))
+
 ## [0.5.0](https://github.com/forjd/seg-lcd-rust/compare/v0.4.0...v0.5.0) (2026-05-04)
 
 
