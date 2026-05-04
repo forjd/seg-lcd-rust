@@ -1,7 +1,11 @@
 import init, {
   default_display_text,
+  render_mask_svg_with_style,
   render_svg_for_theme,
   render_svg_with_style,
+  segment_mask_binary,
+  segment_mask_hex,
+  segment_mask_letters,
   theme_names,
 } from "./pkg/seg_lcd_rust.js";
 
@@ -55,6 +59,11 @@ const themes = {
 
 const preview = document.querySelector("#preview");
 const text = document.querySelector("#text");
+const customMode = document.querySelector("#custom-mode");
+const segments = document.querySelector("#segments");
+const maskLetters = document.querySelector("#mask-letters");
+const maskBinary = document.querySelector("#mask-binary");
+const maskHex = document.querySelector("#mask-hex");
 const theme = document.querySelector("#theme");
 const on = document.querySelector("#on");
 const off = document.querySelector("#off");
@@ -67,6 +76,17 @@ const download = document.querySelector("#download");
 const error = document.querySelector("#error");
 
 let currentSvg = "";
+let customMask = 0b1011011;
+
+const segmentDefinitions = [
+  ["A", 1 << 0],
+  ["B", 1 << 1],
+  ["C", 1 << 2],
+  ["D", 1 << 3],
+  ["E", 1 << 4],
+  ["F", 1 << 5],
+  ["G", 1 << 6],
+];
 
 function titleCase(value) {
   return value.slice(0, 1).toUpperCase() + value.slice(1);
@@ -85,21 +105,45 @@ function applyTheme(name) {
 
 function render() {
   try {
-    currentSvg = render_svg_with_style(
-      text.value,
-      on.value,
-      off.value,
-      background.value,
-      panel.value,
-      inactiveOpacity.value,
-      glow.checked,
-      glass.checked,
-    );
+    currentSvg = customMode.checked
+      ? render_mask_svg_with_style(
+          customMask,
+          on.value,
+          off.value,
+          background.value,
+          panel.value,
+          inactiveOpacity.value,
+          glow.checked,
+          glass.checked,
+        )
+      : render_svg_with_style(
+          text.value,
+          on.value,
+          off.value,
+          background.value,
+          panel.value,
+          inactiveOpacity.value,
+          glow.checked,
+          glass.checked,
+        );
     preview.innerHTML = currentSvg;
     error.textContent = "";
+    renderMask();
   } catch (err) {
     error.textContent = String(err);
   }
+}
+
+function renderMask() {
+  for (const button of segments.querySelectorAll("button")) {
+    const bit = Number(button.dataset.bit);
+    button.classList.toggle("active", (customMask & bit) !== 0);
+    button.setAttribute("aria-pressed", String((customMask & bit) !== 0));
+  }
+
+  maskLetters.textContent = segment_mask_letters(customMask);
+  maskBinary.textContent = segment_mask_binary(customMask);
+  maskHex.textContent = segment_mask_hex(customMask);
 }
 
 function downloadSvg() {
@@ -133,8 +177,43 @@ theme.addEventListener("change", () => {
   render();
 });
 
-for (const control of [text, on, off, background, panel, inactiveOpacity, glow, glass]) {
+for (const control of [
+  text,
+  customMode,
+  on,
+  off,
+  background,
+  panel,
+  inactiveOpacity,
+  glow,
+  glass,
+]) {
   control.addEventListener("input", render);
 }
 
 download.addEventListener("click", downloadSvg);
+
+for (const [name, bit] of segmentDefinitions) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = name;
+  button.dataset.bit = String(bit);
+  button.setAttribute("aria-pressed", "false");
+  button.addEventListener("click", () => {
+    customMask ^= bit;
+    customMode.checked = true;
+    render();
+  });
+  segments.append(button);
+}
+renderMask();
+
+for (const button of [maskLetters, maskBinary, maskHex]) {
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(button.textContent);
+    } catch {
+      error.textContent = "Clipboard access is unavailable in this browser.";
+    }
+  });
+}

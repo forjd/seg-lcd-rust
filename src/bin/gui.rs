@@ -3,8 +3,10 @@ use eframe::egui::{
     Slider, Stroke, StrokeKind, Vec2, vec2,
 };
 use seg_lcd_rust::{
-    A, B, C, CellKind, D, DIGIT_ADVANCE, DIGIT_HEIGHT, DIGIT_WIDTH, E, F, G, HexColor, LcdStyle,
-    Theme, horizontal_points, parse_cells, render_svg, vertical_points,
+    A, B, C, Cell, CellKind, D, DIGIT_ADVANCE, DIGIT_HEIGHT, DIGIT_WIDTH, E, F, G, HexColor,
+    LcdStyle, SEGMENTS, Theme, format_segment_mask_binary, format_segment_mask_hex,
+    format_segment_mask_letters, horizontal_points, parse_cells, render_cells_svg, render_svg,
+    vertical_points,
 };
 
 fn main() -> eframe::Result {
@@ -25,6 +27,8 @@ fn main() -> eframe::Result {
 #[derive(Debug)]
 struct LcdApp {
     text: String,
+    custom_mask: u8,
+    show_custom: bool,
     theme: Theme,
     style: LcdStyle,
     last_export: Option<String>,
@@ -35,6 +39,8 @@ impl Default for LcdApp {
         let theme = Theme::Classic;
         Self {
             text: "12:34.5".to_string(),
+            custom_mask: A | B | D | E | G,
+            show_custom: false,
             theme,
             style: theme.style(),
             last_export: None,
@@ -54,6 +60,10 @@ impl eframe::App for LcdApp {
                 ui.add_space(8.0);
                 ui.label("Text");
                 ui.text_edit_singleline(&mut self.text);
+
+                ui.add_space(12.0);
+                ui.checkbox(&mut self.show_custom, "Preview custom digit");
+                segment_editor(ui, &mut self.custom_mask);
 
                 ui.add_space(16.0);
                 let mut selected_theme = self.theme;
@@ -82,7 +92,7 @@ impl eframe::App for LcdApp {
 
                 ui.add_space(16.0);
                 if ui.button("Export SVG").clicked() {
-                    match std::fs::write("gui-display.svg", render_svg(&self.text, self.style)) {
+                    match std::fs::write("gui-display.svg", self.render_svg()) {
                         Ok(()) => self.last_export = Some("Wrote gui-display.svg".to_string()),
                         Err(error) => self.last_export = Some(format!("Export failed: {error}")),
                     }
@@ -97,12 +107,60 @@ impl eframe::App for LcdApp {
             .show(ctx, |ui| {
                 let available = ui.available_size();
                 let (rect, _) = ui.allocate_exact_size(available, Sense::hover());
-                paint_lcd(ui.painter(), rect.shrink(24.0), &self.text, self.style);
+                let cells = self.preview_cells();
+                paint_lcd(ui.painter(), rect.shrink(24.0), &cells, self.style);
             });
     }
 }
 
-fn paint_lcd(painter: &egui::Painter, rect: Rect, text: &str, style: LcdStyle) {
+impl LcdApp {
+    fn preview_cells(&self) -> Vec<Cell> {
+        if self.show_custom {
+            vec![Cell {
+                kind: CellKind::Segments(self.custom_mask),
+                decimal: false,
+            }]
+        } else {
+            parse_cells(&self.text)
+        }
+    }
+
+    fn render_svg(&self) -> String {
+        if self.show_custom {
+            render_cells_svg(&self.preview_cells(), self.style)
+        } else {
+            render_svg(&self.text, self.style)
+        }
+    }
+}
+
+fn segment_editor(ui: &mut egui::Ui, mask: &mut u8) {
+    ui.horizontal_wrapped(|ui| {
+        for (segment, name) in SEGMENTS {
+            let mut enabled = *mask & segment != 0;
+            if ui
+                .selectable_label(enabled, name)
+                .on_hover_text(format!("Toggle segment {name}"))
+                .clicked()
+            {
+                enabled = !enabled;
+                if enabled {
+                    *mask |= segment;
+                } else {
+                    *mask &= !segment;
+                }
+            }
+        }
+    });
+
+    ui.horizontal_wrapped(|ui| {
+        ui.monospace(format_segment_mask_letters(*mask));
+        ui.monospace(format_segment_mask_binary(*mask));
+        ui.monospace(format_segment_mask_hex(*mask));
+    });
+}
+
+fn paint_lcd(painter: &egui::Painter, rect: Rect, cells: &[Cell], style: LcdStyle) {
     painter.rect(
         rect,
         CornerRadius::same(14),
@@ -111,7 +169,6 @@ fn paint_lcd(painter: &egui::Painter, rect: Rect, text: &str, style: LcdStyle) {
         StrokeKind::Inside,
     );
 
-    let cells = parse_cells(text);
     let units = cells
         .iter()
         .map(|cell| match cell.kind {
@@ -137,7 +194,7 @@ fn paint_lcd(painter: &egui::Painter, rect: Rect, text: &str, style: LcdStyle) {
     let mut x = rect.center().x - content_w / 2.0;
     let y = rect.center().y - digit_h / 2.0;
 
-    for cell in cells {
+    for cell in cells.iter().copied() {
         match cell.kind {
             CellKind::Segments(mask) => {
                 paint_digit(painter, Pos2::new(x, y), scale, mask, cell.decimal, style);

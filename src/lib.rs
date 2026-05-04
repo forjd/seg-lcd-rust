@@ -6,6 +6,15 @@ pub const E: u8 = 1 << 4;
 pub const F: u8 = 1 << 5;
 pub const G: u8 = 1 << 6;
 pub const ALL: u8 = A | B | C | D | E | F | G;
+pub const SEGMENTS: [(u8, &str); 7] = [
+    (A, "A"),
+    (B, "B"),
+    (C, "C"),
+    (D, "D"),
+    (E, "E"),
+    (F, "F"),
+    (G, "G"),
+];
 
 #[cfg(target_arch = "wasm32")]
 mod wasm;
@@ -586,18 +595,27 @@ pub fn print_masks(text: &str) {
 }
 
 pub fn segment_names(mask: u8) -> Vec<&'static str> {
-    [
-        (A, "A"),
-        (B, "B"),
-        (C, "C"),
-        (D, "D"),
-        (E, "E"),
-        (F, "F"),
-        (G, "G"),
-    ]
-    .iter()
-    .filter_map(|(segment, name)| (mask & segment != 0).then_some(*name))
-    .collect()
+    SEGMENTS
+        .iter()
+        .filter_map(|(segment, name)| (mask & segment != 0).then_some(*name))
+        .collect()
+}
+
+pub fn format_segment_mask_letters(mask: u8) -> String {
+    let names = segment_names(mask);
+    if names.is_empty() {
+        "none".to_string()
+    } else {
+        names.join("")
+    }
+}
+
+pub fn format_segment_mask_binary(mask: u8) -> String {
+    format!("0b{:07b}", mask & ALL)
+}
+
+pub fn format_segment_mask_hex(mask: u8) -> String {
+    format!("0x{:02x}", mask & ALL)
 }
 
 pub fn segment_mask(ch: char) -> Option<u8> {
@@ -712,5 +730,18 @@ mod tests {
             render_text("2", TerminalStyle::default())
         );
         assert!(render_cells_svg(&cells, LcdStyle::default()).contains("<polygon"));
+    }
+
+    #[test]
+    fn formats_custom_segment_masks() {
+        let mask = A | B | D | E | G;
+
+        assert_eq!(segment_names(mask), vec!["A", "B", "D", "E", "G"]);
+        assert_eq!(format_segment_mask_letters(mask), "ABDEG");
+        assert_eq!(format_segment_mask_binary(mask), "0b1011011");
+        assert_eq!(format_segment_mask_hex(mask), "0x5b");
+        assert_eq!(format_segment_mask_letters(0), "none");
+        assert_eq!(format_segment_mask_binary(0xff), "0b1111111");
+        assert_eq!(format_segment_mask_hex(0xff), "0x7f");
     }
 }

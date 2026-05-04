@@ -88,9 +88,10 @@ Run the desktop GUI with:
 cargo run --bin seg-lcd-rust-gui
 ```
 
-The GUI provides a live LCD preview, editable display text, theme selection,
-color controls, inactive-segment opacity, glow and glass toggles, and an SVG
-export button that writes `gui-display.svg`.
+The GUI provides a live LCD preview, editable display text, a custom segment
+editor for toggling segments `A` through `G`, theme selection, color controls,
+inactive-segment opacity, glow and glass toggles, and an SVG export button that
+writes `gui-display.svg`.
 
 ## WebAssembly
 
@@ -109,7 +110,8 @@ python3 -m http.server 8080
 
 Open <http://localhost:8080/web/>. The demo calls the Rust SVG renderer through
 the Wasm exports in `src/wasm.rs`, so browser output stays aligned with the CLI
-and GUI renderers.
+and GUI renderers. It also includes a custom segment editor with copyable
+letter, binary, and hex masks.
 
 ## Library
 

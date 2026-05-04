@@ -70,7 +70,8 @@ h1 {
 }
 
 .field span,
-.custom span {
+.custom span,
+.mode-toggle span {
   color: #57625c;
   font-size: 13px;
   font-weight: 650;
@@ -110,6 +111,49 @@ select:focus {
   border-radius: 6px;
 }
 
+.segment-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.segments {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.segments button {
+  height: 34px;
+  padding: 0;
+  border-radius: 6px;
+  font-weight: 750;
+}
+
+.mask-output {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.mask-output button {
+  height: 34px;
+  min-width: 0;
+  padding: 0 6px;
+  overflow: hidden;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+}
+
 .custom {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -142,6 +186,25 @@ button {
 
 button:hover {
   background: #2c4638;
+}
+
+.segments button,
+.mask-output button {
+  color: #17201b;
+  background: #fbfcfb;
+  border: 1px solid #cbd2ce;
+}
+
+.segments button:hover,
+.mask-output button:hover {
+  background: #eef2ef;
+}
+
+.segments button.active,
+.segments button.active:hover {
+  color: #ffffff;
+  background: #1f3328;
+  border-color: #1f3328;
 }
 
 .error {

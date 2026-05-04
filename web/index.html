@@ -20,6 +20,19 @@
           <input id="text" type="text" spellcheck="false" autocomplete="off" />
         </label>
 
+        <section class="segment-editor" aria-label="Custom segment editor">
+          <label class="mode-toggle">
+            <input id="custom-mode" type="checkbox" />
+            <span>Preview custom digit</span>
+          </label>
+          <div id="segments" class="segments" aria-label="Segments A through G"></div>
+          <div class="mask-output" aria-label="Current segment mask">
+            <button id="mask-letters" type="button"></button>
+            <button id="mask-binary" type="button"></button>
+            <button id="mask-hex" type="button"></button>
+          </div>
+        </section>
+
         <label class="field">
           <span>Theme</span>
           <select id="theme"></select>
