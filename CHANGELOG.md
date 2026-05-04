@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/forjd/seg-lcd-rust/compare/v0.4.0...v0.5.0) (2026-05-04)
+
+
+### Features
+
+* add custom segment editor ([e2a9b21](https://github.com/forjd/seg-lcd-rust/commit/e2a9b210fc7e1c924a97f5fb54ed928b4d629eca))
+
 ## [0.4.0](https://github.com/forjd/seg-lcd-rust/compare/v0.3.0...v0.4.0) (2026-05-03)
 
 
