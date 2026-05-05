@@ -9,6 +9,9 @@ use url::form_urlencoded;
 
 const DEFAULT_ADDR: &str = "127.0.0.1:7878";
 const DEFAULT_TEXT: &str = "12:34.5";
+const MAX_QUERY_BYTES: usize = 4096;
+const MAX_TEXT_CHARS: usize = 256;
+const MAX_MASKS: usize = 64;
 
 fn main() {
     let config = match Config::from_args(env::args().skip(1)) {
@@ -115,7 +118,7 @@ fn handle_request(method: &Method, url: &str) -> ApiResponse {
                 content_type: "image/svg+xml; charset=utf-8",
                 body: svg,
             },
-            Err(error) => text_response(400, &format!("{error}\n")),
+            Err(error) => text_response(error.status(), &format!("{}\n", error.message())),
         },
         "/healthz" => text_response(200, "ok\n"),
         _ => text_response(404, "not found\n"),
@@ -126,19 +129,39 @@ fn split_url(url: &str) -> (&str, &str) {
     url.split_once('?').unwrap_or((url, ""))
 }
 
-fn render_svg_request(query: &str) -> Result<String, String> {
+fn render_svg_request(query: &str) -> Result<String, ApiError> {
+    if query.len() > MAX_QUERY_BYTES {
+        return Err(ApiError::PayloadTooLarge(format!(
+            "query string is too large; limit is {MAX_QUERY_BYTES} bytes"
+        )));
+    }
+
     let mut text = DEFAULT_TEXT.to_string();
     let mut style = LcdStyle::default();
     let mut masks = Vec::new();
 
     for (key, value) in form_urlencoded::parse(query.as_bytes()) {
         match key.as_ref() {
-            "text" => text = value.into_owned(),
+            "text" => {
+                if value.chars().count() > MAX_TEXT_CHARS {
+                    return Err(ApiError::PayloadTooLarge(format!(
+                        "text is too long; limit is {MAX_TEXT_CHARS} characters"
+                    )));
+                }
+                text = value.into_owned();
+            }
             "theme" => style = value.parse::<Theme>()?.style(),
-            "mask" => masks.push(Cell {
-                kind: CellKind::Segments(parse_segment_mask(&value)?),
-                decimal: false,
-            }),
+            "mask" => {
+                if masks.len() >= MAX_MASKS {
+                    return Err(ApiError::PayloadTooLarge(format!(
+                        "too many mask parameters; limit is {MAX_MASKS}"
+                    )));
+                }
+                masks.push(Cell {
+                    kind: CellKind::Segments(parse_segment_mask(&value)?),
+                    decimal: false,
+                });
+            }
             "on" => style.on = HexColor::parse(&value, "on")?,
             "off" => style.off = HexColor::parse(&value, "off")?,
             "bg" => style.background = HexColor::parse(&value, "bg")?,
@@ -146,7 +169,7 @@ fn render_svg_request(query: &str) -> Result<String, String> {
             "inactive-opacity" => style.inactive_opacity = parse_opacity(&value)?,
             "glow" => style.glow = parse_bool(&value, "glow")?,
             "glass" => style.glass = parse_bool(&value, "glass")?,
-            _ => return Err(format!("unknown query parameter: {key}")),
+            _ => return Err(format!("unknown query parameter: {key}").into()),
         }
     }
 
@@ -154,6 +177,33 @@ fn render_svg_request(query: &str) -> Result<String, String> {
         Ok(render_svg(&text, style))
     } else {
         Ok(render_cells_svg(&masks, style))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ApiError {
+    BadRequest(String),
+    PayloadTooLarge(String),
+}
+
+impl ApiError {
+    fn status(&self) -> u16 {
+        match self {
+            Self::BadRequest(_) => 400,
+            Self::PayloadTooLarge(_) => 413,
+        }
+    }
+
+    fn message(&self) -> &str {
+        match self {
+            Self::BadRequest(message) | Self::PayloadTooLarge(message) => message,
+        }
+    }
+}
+
+impl From<String> for ApiError {
+    fn from(message: String) -> Self {
+        Self::BadRequest(message)
     }
 }
 
@@ -229,5 +279,43 @@ mod tests {
         let response = handle_request(&Method::Post, "/svg?text=123");
 
         assert_eq!(response.status, 405);
+    }
+
+    #[test]
+    fn rejects_oversized_query_strings() {
+        let url = format!("/svg?text={}", "8".repeat(4097));
+
+        let response = handle_request(&Method::Get, &url);
+
+        assert_eq!(response.status, 413);
+        assert!(response.body.contains("query string is too large"));
+    }
+
+    #[test]
+    fn rejects_oversized_decoded_text() {
+        let url = format!("/svg?text={}", "8".repeat(257));
+
+        let response = handle_request(&Method::Get, &url);
+
+        assert_eq!(response.status, 413);
+        assert!(response.body.contains("text is too long"));
+    }
+
+    #[test]
+    fn rejects_too_many_masks() {
+        let mut url = String::from("/svg");
+        for index in 0..65 {
+            if index == 0 {
+                url.push('?');
+            } else {
+                url.push('&');
+            }
+            url.push_str("mask=A");
+        }
+
+        let response = handle_request(&Method::Get, &url);
+
+        assert_eq!(response.status, 413);
+        assert!(response.body.contains("too many mask parameters"));
     }
 }
