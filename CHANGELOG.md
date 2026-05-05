@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/forjd/seg-lcd-rust/compare/v0.6.0...v0.7.0) (2026-05-05)
+
+
+### Features
+
+* **cli:** add native PNG export ([80311be](https://github.com/forjd/seg-lcd-rust/commit/80311be1b2d71f420c8c1c2195d94c4d318f6431))
+
 ## [0.6.0](https://github.com/forjd/seg-lcd-rust/compare/v0.5.0...v0.6.0) (2026-05-04)
 
 
