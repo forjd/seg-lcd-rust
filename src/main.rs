@@ -2,7 +2,8 @@ use std::{env, fs, path::PathBuf};
 
 use seg_lcd_rust::{
     Cell, CellKind, HexColor, LcdStyle, TerminalStyle, Theme, parse_opacity, parse_segment_mask,
-    print_masks, render_cells_svg, render_cells_text, render_svg, render_text, segment_names,
+    print_masks, render_cells_png, render_cells_svg, render_cells_text, render_png, render_svg,
+    render_text, segment_names,
 };
 
 fn main() {
@@ -32,6 +33,23 @@ fn main() {
         println!("wrote {}", path.display());
     }
 
+    if let Some(path) = &config.png_path {
+        let png = match config.render_png() {
+            Ok(png) => png,
+            Err(error) => {
+                eprintln!("failed to render PNG: {error}");
+                std::process::exit(1);
+            }
+        };
+
+        if let Err(error) = fs::write(path, png) {
+            eprintln!("failed to write PNG to {}: {error}", path.display());
+            std::process::exit(1);
+        }
+        println!();
+        println!("wrote {}", path.display());
+    }
+
     if config.dump_masks {
         println!();
         config.print_masks();
@@ -44,6 +62,7 @@ struct Config {
     terminal_style: TerminalStyle,
     dump_masks: bool,
     svg_path: Option<PathBuf>,
+    png_path: Option<PathBuf>,
     lcd_style: LcdStyle,
     help: bool,
 }
@@ -59,6 +78,7 @@ impl Config {
         let mut terminal_style = TerminalStyle::default();
         let mut dump_masks = false;
         let mut svg_path = None;
+        let mut png_path = None;
         let mut lcd_style = LcdStyle::default();
         let mut help = false;
         let mut text_parts = Vec::new();
@@ -75,6 +95,12 @@ impl Config {
                         .next()
                         .ok_or_else(|| "--svg requires an output path".to_string())?;
                     svg_path = Some(PathBuf::from(path));
+                }
+                "--png" => {
+                    let path = args
+                        .next()
+                        .ok_or_else(|| "--png requires an output path".to_string())?;
+                    png_path = Some(PathBuf::from(path));
                 }
                 "--mask" => {
                     let mask = parse_segment_mask(&next_option_value(&mut args, "--mask")?)?;
@@ -138,6 +164,7 @@ impl Config {
             terminal_style,
             dump_masks,
             svg_path,
+            png_path,
             lcd_style,
             help,
         })
@@ -154,6 +181,13 @@ impl Config {
         match &self.display {
             DisplayInput::Text(text) => render_svg(text, self.lcd_style),
             DisplayInput::Cells(cells) => render_cells_svg(cells, self.lcd_style),
+        }
+    }
+
+    fn render_png(&self) -> Result<Vec<u8>, String> {
+        match &self.display {
+            DisplayInput::Text(text) => render_png(text, self.lcd_style),
+            DisplayInput::Cells(cells) => render_cells_png(cells, self.lcd_style),
         }
     }
 
@@ -192,6 +226,7 @@ fn print_usage() {
          --masks     print each character's seven-bit segment mask\n  \
          --mask MASK  render one custom digit from segments A-G, 0b bits, or 0x hex\n  \
          --svg PATH  write a browser-viewable SVG rendering\n  \
+         --png PATH  write a PNG rendering\n  \
          --theme NAME  SVG theme: classic, green, amber, blue, negative\n  \
          --on HEX    SVG active segment color\n  \
          --off HEX   SVG inactive segment color\n  \
@@ -205,6 +240,7 @@ fn print_usage() {
          Examples:\n  cargo run -- 0123456789\n  cargo run -- --labels HELP\n  \
          cargo run -- --mask ABDEG --mask BCG\n  \
          cargo run -- --svg display.svg --theme amber 10:58.42\n  \
+         cargo run -- --png display.png --theme blue --glow 88:88.88\n  \
          cargo run -- --svg display.svg --theme blue --glow 88:88.88"
     );
 }

@@ -17,12 +17,12 @@ calculators, digital clocks, and classic digital watches.
 It includes:
 
 - a terminal renderer
-- a browser-viewable SVG exporter
+- browser-viewable SVG and native PNG exporters
 - a tiny HTTP API that returns rendered SVG
 - a native `egui` desktop GUI
 - WebAssembly bindings for browser demos
 - a shared library for parsing text, segment masks, themes, geometry, terminal
-  rendering, and SVG rendering
+  rendering, SVG rendering, and PNG rasterization
 
 ## Status
 
@@ -41,6 +41,7 @@ cargo run -- --mask ABDEG --mask BCG --labels
 cargo run -- --svg display.svg 0123456789
 cargo run -- --svg amber.svg --theme amber 10:58.42
 cargo run -- --svg blue.svg --theme blue --glow 88:88.88
+cargo run -- --png blue.png --theme blue --glow 88:88.88
 cargo run -- --svg custom.svg --on 102418 --off 6b7a62 --bg dbe5d2 --panel c3d0ba --inactive-opacity 0.18 1234
 cargo run --bin seg-lcd-rust-api -- --addr 127.0.0.1:7878
 ```

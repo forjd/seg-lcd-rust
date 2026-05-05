@@ -426,6 +426,34 @@ pub fn render_svg(text: &str, style: LcdStyle) -> String {
     render_cells_svg(&cells, style)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+pub fn render_png(text: &str, style: LcdStyle) -> Result<Vec<u8>, String> {
+    let cells = parse_cells(text);
+    render_cells_png(&cells, style)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn render_cells_png(cells: &[Cell], style: LcdStyle) -> Result<Vec<u8>, String> {
+    let svg = render_cells_svg(cells, style);
+    render_svg_to_png(&svg)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn render_svg_to_png(svg: &str) -> Result<Vec<u8>, String> {
+    let options = usvg::Options::default();
+    let tree = usvg::Tree::from_str(svg, &options).map_err(|error| error.to_string())?;
+    let size = tree.size().to_int_size();
+    let mut pixmap = tiny_skia::Pixmap::new(size.width(), size.height())
+        .ok_or_else(|| "failed to allocate PNG pixmap".to_string())?;
+
+    resvg::render(
+        &tree,
+        tiny_skia::Transform::identity(),
+        &mut pixmap.as_mut(),
+    );
+    pixmap.encode_png().map_err(|error| error.to_string())
+}
+
 pub fn render_cells_svg(cells: &[Cell], style: LcdStyle) -> String {
     let width = svg_width(cells);
     let height = 164;

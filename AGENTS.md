@@ -21,6 +21,7 @@ rtk cargo test
 rtk cargo clippy --all-targets -- -D warnings
 rtk cargo run -- 0123456789
 rtk cargo run -- --svg display.svg --theme amber 10:58.42
+rtk cargo run -- --png display.png --theme blue --glow 10:58.42
 rtk cargo run --bin seg-lcd-rust-gui
 rtk git config core.hooksPath scripts/git-hooks
 ```
@@ -35,11 +36,14 @@ exists.
   or segment geometry in binaries.
 - Keep `src/main.rs` focused on CLI argument parsing and IO.
 - Keep `src/bin/gui.rs` focused on GUI state and `egui` painting.
-- SVG export should use `render_svg` from the shared library.
+- SVG and PNG export should reuse shared rendering helpers from the library.
+- PNG export should rasterize the existing SVG renderer rather than duplicating
+  segment geometry or painting logic.
 - If adding supported characters, update `segment_mask` and tests in
   `src/lib.rs`.
-- Generated SVGs such as `display.svg` or `gui-display.svg` are local artifacts
-  unless intentionally committed as fixtures.
+- Generated SVGs/PNGs such as `display.svg`, `display.png`, or
+  `gui-display.svg` are local artifacts unless intentionally committed as
+  fixtures.
 - Commit messages should follow Conventional Commits. The versioned
   `scripts/git-hooks/commit-msg` hook enforces this locally when
   `core.hooksPath` is configured.
