@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/forjd/seg-lcd-rust/compare/v0.7.0...v0.7.1) (2026-05-05)
+
+
+### Bug Fixes
+
+* **api:** limit SVG request input sizes ([e188369](https://github.com/forjd/seg-lcd-rust/commit/e1883692039e7066951241ca1436b79e52c29bc7))
+
 ## [0.7.0](https://github.com/forjd/seg-lcd-rust/compare/v0.6.0...v0.7.0) (2026-05-05)
 
 
